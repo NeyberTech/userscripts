@@ -3,9 +3,9 @@
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
 // @version      0.1
 // @description  给语雀文档的每一行加一个勾选框，本地浏览器存储
-// @author       AlexLee
+// @author       Neyber Team
 // @match        https://*.yuque.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=tampermonkey.net
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=yuque.com
 // @grant        none
 // @downloadURL  https://raw.githubusercontent.com/NeyberTech/userscripts/master/yuque-to-checklist.user.js
 // @updateURL    https://raw.githubusercontent.com/NeyberTech/userscripts/master/yuque-to-checklist.user.js
