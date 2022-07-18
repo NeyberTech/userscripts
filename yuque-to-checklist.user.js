@@ -1,12 +1,15 @@
 // ==UserScript==
 // @name         语雀文档变任务清单
-// @namespace    http://tampermonkey.net/
+// @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
 // @version      0.1
 // @description  给语雀文档的每一行加一个勾选框，本地浏览器存储
 // @author       AlexLee
 // @match        https://*.yuque.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=tampermonkey.net
 // @grant        none
+// @downloadURL  https://raw.githubusercontent.com/NeyberTech/userscripts/master/yuque-to-checklist.user.js
+// @updateURL    https://raw.githubusercontent.com/NeyberTech/userscripts/master/yuque-to-checklist.user.js
+// @supportURL   https://github.com/NeyberTech/userscripts/issues
 // ==/UserScript==
 
 function delay(time){
