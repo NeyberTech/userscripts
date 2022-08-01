@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      0.1
+// @version      0.1.1
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
@@ -39,6 +39,10 @@ const debounceByKeys = (function(){
         };
     }
 })();
+
+function getTitleThEl(parentEl = document){
+    return [].find.call(parentEl.getElementsByClassName('styx-table-column-has-action'), (el)=>el.innerText=='标题');
+}
 
 const copy = (function (){
     let textArea;
@@ -80,7 +84,7 @@ const copy = (function (){
         if (typeof parentEl.getElementsByTagName !== 'function') {
             return ;
         }
-        const titleTh = [].find.call(parentEl.getElementsByClassName('styx-table-column-has-action'), (el)=>el.title=='标题');
+        const titleTh = getTitleThEl(parentEl);
         if (titleTh) {
             let titleCopyBtn = [].find.call(titleTh.childNodes, (n)=>n._titleCopyBtn);
             if(!titleCopyBtn) {
@@ -123,7 +127,7 @@ const copy = (function (){
 
     // 避免卡住首屏加载
     await waitUntil(()=>{
-        return !![].find.call(document.getElementsByClassName('styx-table-column-has-action'), (el)=>el.title=='标题');
+        return !!getTitleThEl();
     });
 
     init();
