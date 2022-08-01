@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      0.1.1
+// @version      0.1
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
@@ -52,6 +52,8 @@ const copy = (function (){
             textArea.style.height = 0;
             textArea.style.width = 0;
             textArea.style.opacity = 0;
+            textArea.style.left = 0;
+            textArea.style.top = 0;
             textArea.style.position = 'absolute';
             document.body.appendChild(textArea);
         }
@@ -94,7 +96,7 @@ const copy = (function (){
                 titleCopyBtn.style.boxSizing = 'border-box';
                 titleCopyBtn.style.height = titleCopyBtn.style.width = '30px';
                 titleCopyBtn.style.position = 'absolute';
-                titleCopyBtn.style.right = '10px';
+                titleCopyBtn.style.right = '20px';
                 titleCopyBtn.style.top = '50%';
                 titleCopyBtn.style.marginTop = '-15px';
                 titleCopyBtn.style.padding = '7px';
