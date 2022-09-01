@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         语雀文档变任务清单
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.0
+// @version      1.1
 // @description  给语雀文档的每一行加一个勾选框，本地浏览器存储
 // @author       Neyber Team
 // @match        https://*.yuque.com/*
