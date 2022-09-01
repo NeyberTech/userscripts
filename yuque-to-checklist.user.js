@@ -90,7 +90,7 @@ const debounceByKeys = (function(){
     }
 
     function getDocId(pathname = location.pathname){
-        return pathname.replace(/(\?|#).+/).split('/').slice(-1)[0];
+        return pathname.replace(/(\/)?((\?|#).+)?$/, '').split('/').slice(-1)[0];
     }
 
     function getUnionId(id){
