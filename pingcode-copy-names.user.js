@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.4
+// @version      1.5
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
@@ -77,8 +77,8 @@ const copy = (function (){
 
     function getItemNameList(){
         let names = [];
-        [].forEach.call(document.getElementsByClassName('agile-table-quick-editor'), (trEl)=>{
-            [].forEach.call(trEl.getElementsByClassName('table-column-work-item-name'), (nameEl)=>{
+        [].forEach.call(document.getElementsByClassName('styx-table-quick-editor-row'), (trEl)=>{
+            [].forEach.call(trEl.getElementsByClassName('styx-item-title'), (nameEl)=>{
                 names.push(nameEl.innerText);
             });
         });
@@ -87,8 +87,8 @@ const copy = (function (){
 
     function getItemStatusList(){
         let status = [];
-        [].forEach.call(document.getElementsByClassName('agile-table-quick-editor'), (trEl)=>{
-            [].forEach.call(trEl.getElementsByClassName('state-label'), (stateEl)=>{
+        [].forEach.call(document.getElementsByClassName('styx-table-quick-editor-row'), (trEl)=>{
+            [].forEach.call(trEl.getElementsByClassName('styx-state'), (stateEl)=>{
                 status.push(stateEl.innerText);
             });
         });
