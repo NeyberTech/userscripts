@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.5
+// @version      1.4
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
@@ -51,6 +51,10 @@ function getStatusThEl(parentEl = document){
     return [].find.call(parentEl.getElementsByClassName('styx-table-column-has-action'), (el)=>['状态', '状态\n⭐️', '状态\n🔺'].includes(el.innerText));
 }
 
+function getLaunchDateThEl(parentEl = document){
+    return [].find.call(parentEl.getElementsByClassName('styx-table-column-has-action'), (el)=>['预计上线日期', '预计上线日期\n⭐️', '预计上线日期\n🔺'].includes(el.innerText));
+}
+
 const copy = (function (){
     let textArea;
     return function (text) {
@@ -95,6 +99,14 @@ const copy = (function (){
         return status;
     }
 
+    function getItemLaunchDateList(){
+        let dates = [];
+        [].forEach.call(document.querySelectorAll('[name="yujishangxianri"]'), (el)=>{
+            dates.push(el.parentNode.innerText);
+        });
+        return dates;
+    }
+
     function getItemNameListText(){
         const list = getItemNameList();
         // 按住 Alt、Option 键时，只复制带 ⭐️ 的记录
@@ -112,6 +124,29 @@ const copy = (function (){
         const list = status.map((statusText, i)=>{
             emojiRegExp.lastIndex = 0;
             return [emojiRegExp.test(statusText) ? RegExp.$1 : '', names[i] || ''].filter(_=>_).join(' ');
+        });
+        // 按住 Alt、Option 键时，只复制带 ⭐️ 的记录，若再同时按住 Control/Shift 键的话，只复制带 🔺 的记录
+        if (downingKey.Alt && downingKey.Shift) {
+            return list.filter(_=>_.indexOf('🔺') !== -1).join('\n');
+        }
+        else if (downingKey.Alt) {
+            return list.filter(_=>_.indexOf('⭐️') !== -1).join('\n');
+        }
+        else {
+            return list.join('\n');
+        }
+    }
+
+    function getItemStatusAndNameAndLaunchDateListText(){
+        const names = getItemNameList();
+        const status = getItemStatusList();
+        const dates = getItemLaunchDateList();
+        const list = status.map((statusText, i)=>{
+            emojiRegExp.lastIndex = 0;
+            let statusIcon = emojiRegExp.test(statusText) ? RegExp.$1 : '';
+            let pureName = (names[i] || '').replace(emojiRegExp, '');
+            let launchDateSuffix = dates[i] ? (' - 【' + (statusIcon === '🎉'?'':'预计') + dates[i] +'上线】') : undefined;
+            return [statusIcon, pureName, launchDateSuffix].filter(_=>_).join(' ');
         });
         // 按住 Alt、Option 键时，只复制带 ⭐️ 的记录，若再同时按住 Control/Shift 键的话，只复制带 🔺 的记录
         if (downingKey.Alt && downingKey.Shift) {
@@ -151,6 +186,12 @@ const copy = (function (){
         e.stopPropagation();
         copy(getItemStatusAndNameListText());
         alert(`已复制当前页面所有卡片的 状态+标题${(downingKey.Alt || (downingKey.Alt && downingKey.Shift)) ? ('（仅包含带'+(downingKey.Shift ? '🔺':'⭐️')+'项目）'):''}`);
+    }
+
+    function handleLaunchDateCopyBtnClick(e){
+        e.stopPropagation();
+        copy(getItemStatusAndNameAndLaunchDateListText());
+        alert(`已复制当前页面所有卡片的 状态+标题+预计发布日期${(downingKey.Alt || (downingKey.Alt && downingKey.Shift)) ? ('（仅包含带'+(downingKey.Shift ? '🔺':'⭐️')+'项目）'):''}`);
     }
 
     function createElementOfCopyButton(){
@@ -197,6 +238,11 @@ const copy = (function (){
         const statusTh = getStatusThEl(parentEl);
         if (statusTh) {
             refreshCopyButton(statusTh, handleStatusCopyBtnClick);
+        }
+
+        const launchDateTh = getLaunchDateThEl(parentEl);
+        if (launchDateTh) {
+            refreshCopyButton(launchDateTh, handleLaunchDateCopyBtnClick);
         }
     }
 
