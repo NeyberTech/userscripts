@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.4
+// @version      1.6
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
