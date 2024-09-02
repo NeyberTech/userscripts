@@ -251,18 +251,27 @@
 
     function init(){
         refresh();
-		document.body.addEventListener( "DOMSubtreeModified", function( e ){
-			debouncedRefresh( e.target );
-		}, true);
-		window.addEventListener( "keydown", function( e ){
-			handleGlobalKeyDown(e);
-			debouncedRefresh();
-		}, true);
-		window.addEventListener( "keyup", function( e ){
-			handleGlobalKeyUp(e);
-			debouncedRefresh();
-		}, true);
-        console.log('inited');
+
+        new MutationObserver((mutationList, observer) => {
+            for (const mutation of mutationList) {
+                [mutation.target].concat(mutation.addedNodes||[]).forEach((node)=>{
+                    if (node) {
+                        debouncedRefresh( node );
+                    }
+                });
+            }
+        }).observe(document, { attributes: true, childList: true, subtree: true });
+	    
+	window.addEventListener( "keydown", function( e ){
+		handleGlobalKeyDown(e);
+		debouncedRefresh();
+	}, true);
+	window.addEventListener( "keyup", function( e ){
+		handleGlobalKeyUp(e);
+		debouncedRefresh();
+	}, true);
+
+	console.log('inited');
     }
 
     // 避免卡住首屏加载
