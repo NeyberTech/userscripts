@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         语雀文档变任务清单
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.1
+// @version      1.2
 // @description  给语雀文档的每一行加一个勾选框，本地浏览器存储
 // @author       Neyber Team
 // @match        https://*.yuque.com/*
@@ -223,9 +223,15 @@ const debounceByKeys = (function(){
         loadStorage();
         refresh();
 
-        document.body.addEventListener( "DOMSubtreeModified", function( e ){
-            debouncedRefresh( e.target );
-		}, true);
+        new MutationObserver((mutationList, observer) => {
+            for (const mutation of mutationList) {
+                [mutation.target].concat(mutation.addedNodes||[]).forEach((node)=>{
+                    if (node) {
+                        debouncedRefresh( node );
+                    }
+                });
+            }
+        }).observe(document, { attributes: true, childList: true, subtree: true });
 
         window.addEventListener('storage', debouncedHandleStorageChange);
 
