@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         语雀文档变任务清单
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.2
+// @version      1.3
 // @description  给语雀文档的每一行加一个勾选框，本地浏览器存储
 // @author       Neyber Team
 // @match        https://*.yuque.com/*
@@ -101,31 +101,45 @@ const debounceByKeys = (function(){
         if (typeof parentEl.getElementsByTagName !== 'function') {
             return ;
         }
-        [].forEach.call(
-            [].slice.call(parentEl.getElementsByTagName('ne-oli-c'), 0).concat(
-                [].slice.call(parentEl.getElementsByTagName('ne-uli-c'), 0)
-            )
-        , (node)=>{
+        [].concat(
+            [].slice.call(parentEl.getElementsByTagName('ne-oli-c'), 0),
+            [].slice.call(parentEl.getElementsByTagName('ne-uli-c'), 0),
+            [].slice.call(parentEl.getElementsByTagName('ne-h1'), 0),
+            [].slice.call(parentEl.getElementsByTagName('ne-h2'), 0),
+            [].slice.call(parentEl.getElementsByTagName('ne-h3'), 0),
+            [].slice.call(parentEl.getElementsByTagName('ne-h4'), 0),
+            [].slice.call(parentEl.getElementsByTagName('ne-h5'), 0),
+            [].slice.call(parentEl.getElementsByTagName('ne-h6'), 0)
+        ).forEach((node)=>{
             if(!!node.id) {
                 const unionId = getUnionId(node.id)
                 const expectedChecked = checkedLiMapById[unionId];
 
-                let checkbox = [].find.call(node.childNodes, (n)=>n.__checklist__listItemCheckbox);
-                if(!checkbox) {
-                    checkbox = document.createElement('Input');
-                    checkbox.type = 'checkbox';
-                    checkbox.unionId = unionId;
-                    checkbox.__checklist__listItemCheckbox = true;
-                    checkbox.style.marginRight = '5px'
-                    checkbox.onchange = handleToggleCheckbox;
-
-                    checkbox.checked = expectedChecked;
-                    node.insertBefore(checkbox, node.childNodes[0]);
+                let insertTarget, insertTargetContainer;
+                if (/ne-h\d/i.test(node.tagName)) {
+                    insertTarget = node.querySelectorAll('ne-heading-content ne-text')[0];
+                    insertTargetContainer = insertTarget?.parentNode;
+                }
+                else {
+                    insertTarget = node.childNodes[0];
+                    insertTargetContainer = node;
                 }
 
-
-                if (expectedChecked !== checkbox.checked) {
-                    checkbox.checked = expectedChecked;
+                if (insertTarget) {
+                    let checkbox = [].find.call(insertTargetContainer.childNodes, (n)=>n.__checklist__listItemCheckbox);
+                    if(!checkbox) {
+                        checkbox = document.createElement('Input');
+                        checkbox.type = 'checkbox';
+                        checkbox.unionId = unionId;
+                        checkbox.__checklist__listItemCheckbox = true;
+                        checkbox.style.marginRight = '5px'
+                        checkbox.onchange = handleToggleCheckbox;
+                        checkbox.checked = expectedChecked;
+                        insertTargetContainer.insertBefore(checkbox, insertTarget);
+                    }
+                    else if (expectedChecked !== checkbox.checked) {
+                        checkbox.checked = expectedChecked;
+                    }
                 }
             }
         });
