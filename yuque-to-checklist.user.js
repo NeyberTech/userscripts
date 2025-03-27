@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         语雀文档变任务清单
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.3
+// @version      1.4
 // @description  给语雀文档的每一行加一个勾选框，本地浏览器存储
 // @author       Neyber Team
 // @match        https://*.yuque.com/*
@@ -109,7 +109,9 @@ const debounceByKeys = (function(){
             [].slice.call(parentEl.getElementsByTagName('ne-h3'), 0),
             [].slice.call(parentEl.getElementsByTagName('ne-h4'), 0),
             [].slice.call(parentEl.getElementsByTagName('ne-h5'), 0),
-            [].slice.call(parentEl.getElementsByTagName('ne-h6'), 0)
+            [].slice.call(parentEl.getElementsByTagName('ne-h6'), 0),
+            [].slice.call(parentEl.getElementsByTagName('ne-h6'), 0),
+            [].slice.call([].map.call(parentEl.querySelectorAll('tr.ne-tr'), tr=>tr.querySelector('ne-p')).filter(_=>_), 0)
         ).forEach((node)=>{
             if(!!node.id) {
                 const unionId = getUnionId(node.id)
@@ -149,7 +151,7 @@ const debounceByKeys = (function(){
         if (!parentEl || typeof parentEl.getElementsByTagName !== 'function') {
             return ;
         }
-        [].slice.call(parentEl.getElementsByClassName('doc-title'), 0, 1).filter(_=>_).forEach((node)=>{
+        [].slice.call(parentEl.getElementsByClassName('header-crumb'), 0, 1).filter(_=>_).forEach((node)=>{
             const checkboxList = [].slice.call(document.querySelectorAll('input[type="checkbox"]'), 0).filter(_=>!!_.__checklist__listItemCheckbox);
             const checkedCheckboxList = checkboxList.filter(_=>_.checked);
             const summary = {
