@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         语雀文档变任务清单
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.4
+// @version      1.5
 // @description  给语雀文档的每一行加一个勾选框，本地浏览器存储
 // @author       Neyber Team
 // @match        https://*.yuque.com/*
@@ -113,7 +113,7 @@ const debounceByKeys = (function(){
             [].slice.call(parentEl.getElementsByTagName('ne-h6'), 0),
             [].slice.call([].map.call(parentEl.querySelectorAll('tr.ne-tr'), tr=>tr.querySelector('ne-p')).filter(_=>_), 0)
         ).forEach((node)=>{
-            if(!!node.id) {
+            if(!!node.id && node.parent?.contentEditable !== 'true') {
                 const unionId = getUnionId(node.id)
                 const expectedChecked = checkedLiMapById[unionId];
 
