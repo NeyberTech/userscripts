@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      2.0
+// @version      2.2
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
@@ -11,6 +11,11 @@
 // @updateURL    https://raw.githubusercontent.com/NeyberTech/userscripts/master/pingcode-copy-names.user.js
 // @supportURL   https://github.com/NeyberTech/userscripts/issues
 // ==/UserScript==
+
+const handleSerialLinePersonOrder = [
+    // // 可在此自定义瓶颈环节按「人」顺序输出
+    // '名字1', '名字2'
+];
 
 
 (async function() {
@@ -49,6 +54,14 @@
                 launchDateText = new Date().getFullYear() + '年' + launchDateText;
             }
             return launchDateText ? (new Date(launchDateText.replace(/(年|月|日)/g, '\/').replace(/日/g, ''))).getTime() : null;
+        },
+        serialLinePersons(trEl){
+            const parent = trEl.querySelectorAll('[name="chuanhangpingjinghuanjie"]')[0];
+            let serialLinePersons = [];
+            if (!parent) return [];
+            serialLinePersons = serialLinePersons.concat([].map.call(parent.querySelectorAll('img.avatar-avatar'), _=>_.alt).filter(_=>_));
+            serialLinePersons = serialLinePersons.concat([].map.call(parent.querySelectorAll('span.avatar-default'), _=>_.innerText));
+            return serialLinePersons;
         }
     }
     // / 数据获取与标准化
@@ -65,16 +78,38 @@
 
     function handleLaunchDateCopyBtnClick(e){
         handleAnyCopyBtnClick(e, '状态+标题+预计发布日期', getFilteredListData().map(_=>{
-            let launchDateSuffix = _.launchDateText ? ('- 【' + ((_.statusIcon === '🎉'||_.launchDateTimeStamp<Date.now())?'已于':'预计') + _.launchDateText +'上线】') : undefined;
-            return [_.statusIcon, _.pureTitle, launchDateSuffix].join(' ');
+            let launchDateSuffix = _.launchDateText ? (' - 【' + ((_.statusIcon === '🎉'||_.launchDateTimeStamp<Date.now())?'已于':'预计') + _.launchDateText +'上线】') : undefined;
+            return [_.statusIcon, _.pureTitle, launchDateSuffix].join('');
         }).join('\n'));
     }
 
     function handleEnTitleThCopyBtnClick(e){
         handleAnyCopyBtnClick(e, '状态+英文标题+预计发布日期', getFilteredListData().map(_=>{
             let launchDateSuffix = _.launchDateTimeStamp ? ('\n  [' + (_.statusIcon === '🎉'?'Already available':('Available on '+ _.launchDateEnText)) +']') : undefined;
-            return ['* ', _.enTitle || _.pureTitle, launchDateSuffix].join(' ');
+            return ['* ', _.enTitle || _.pureTitle, launchDateSuffix].join('');
         }).join('\n\n'));
+    }
+    function handleSerialLinePersonsCopyBtnClick(e){
+        let outputText = '';
+        let uniquePersons = []
+        let itemList = JSON.parse(JSON.stringify(getFilteredListData())).map(_=>{
+            let launchDateSuffix = _.launchDateText ? (' - 【' + ((_.statusIcon === '🎉'||_.launchDateTimeStamp<Date.now())?'已于':'预计') + _.launchDateText +'上线】') : undefined;
+            _.__outputText = [_.statusIcon, _.pureTitle, launchDateSuffix].join('');
+            _.serialLinePersons.forEach(p=>{
+                if (!uniquePersons.includes(p)) {
+                    uniquePersons.push(p)
+                }
+            });
+            return _;
+        });
+        uniquePersons.sort();
+        uniquePersons.sort((a,b)=>handleSerialLinePersonOrder.indexOf(a) < handleSerialLinePersonOrder.indexOf(b) ? -1:1);
+        uniquePersons.forEach(p=>{
+            outputText += '1. **'+ p +'**:';
+            outputText += '\n    1.'+ itemList.filter(_=>_.serialLinePersons.includes(p)).map(_=>_.__outputText).join('\n    1.');
+            outputText += '\n\n';
+        })
+        handleAnyCopyBtnClick(e, '按串行瓶颈环节分组+状态+标题+预计发布日期', outputText);
     }
     // // 事件函数定义
 
@@ -99,6 +134,12 @@
         if (enTitleTh) {
             refreshCopyButton(enTitleTh, handleEnTitleThCopyBtnClick);
         }
+
+        const pipelineTitleTh = getTitleEl('🚦 串行瓶颈环节', parentEl);
+        if (pipelineTitleTh) {
+            refreshCopyButton(pipelineTitleTh, handleSerialLinePersonsCopyBtnClick);
+        }
+
         // / 按钮渲染和事件绑定
     }
     // / 业务需求
@@ -261,17 +302,17 @@
                 });
             }
         }).observe(document, { attributes: true, childList: true, subtree: true });
-	    
-	window.addEventListener( "keydown", function( e ){
-		handleGlobalKeyDown(e);
-		debouncedRefresh();
-	}, true);
-	window.addEventListener( "keyup", function( e ){
-		handleGlobalKeyUp(e);
-		debouncedRefresh();
-	}, true);
 
-	console.log('inited');
+        window.addEventListener( "keydown", function( e ){
+            handleGlobalKeyDown(e);
+            debouncedRefresh();
+        }, true);
+        window.addEventListener( "keyup", function( e ){
+            handleGlobalKeyUp(e);
+            debouncedRefresh();
+        }, true);
+
+        console.log('inited');
     }
 
     // 避免卡住首屏加载
