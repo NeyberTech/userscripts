@@ -112,7 +112,7 @@ const handleSerialLinePersonOrder = [
         uniquePersons.forEach(p=>{
             const mainTypeItems = itemList.filter(_=>_.serialLineMainPersons.includes(p)).map(_=>_.__outputText);
             const supportTypeItems = itemList.filter(_=>_.serialLineSupportPersons.includes(p)).map(_=>_.__outputText);
-            outputText += '1. **'+ p +'**:';
+            outputText += '1. **'+ p +':**';
             if (supportTypeItems.length) {
                 outputText += '\n    0. 支持型事务：';
                 outputText += '\n        0. '+ supportTypeItems.join('\n        1. ');
@@ -125,7 +125,7 @@ const handleSerialLinePersonOrder = [
             }
             outputText += '\n';
         });
-        outputText += '1. **未指派**:';
+        outputText += '1. **未指派:**';
         const unassignedItems =itemList.filter(_=>_.serialLineMainPersons.length===0).map(_=>_.__outputText);
         if (unassignedItems.length) {
             outputText += '\n    1. '+ unassignedItems.join('\n    1. ');
