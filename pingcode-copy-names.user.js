@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      2.2
+// @version      2.3
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
@@ -55,14 +55,19 @@ const handleSerialLinePersonOrder = [
             }
             return launchDateText ? (new Date(launchDateText.replace(/(年|月|日)/g, '\/').replace(/日/g, ''))).getTime() : null;
         },
-        serialLinePersons(trEl){
-            const parent = trEl.querySelectorAll('[name="chuanhangpingjinghuanjie"]')[0];
-            let serialLinePersons = [];
-            if (!parent) return [];
-            serialLinePersons = serialLinePersons.concat([].map.call(parent.querySelectorAll('img.avatar-avatar'), _=>_.alt).filter(_=>_));
-            serialLinePersons = serialLinePersons.concat([].map.call(parent.querySelectorAll('span.avatar-default'), _=>_.innerText));
-            return serialLinePersons;
+        serialLineMainPersons(trEl){
+            return getPersonNames(trEl.querySelectorAll('[name="chuanhangpingjinghuanjie"]')[0]);
+        },
+        serialLineSupportPersons(trEl){
+            return getPersonNames(trEl.querySelectorAll('[name="chuanhangpingjingzhichifang"]')[0]);
         }
+    }
+    function getPersonNames(parentEl){
+        let persons = [];
+        if (!parent) return [];
+        persons = persons.concat([].map.call(parentEl.querySelectorAll('img.avatar-avatar'), _=>_.alt).filter(_=>_));
+        persons = persons.concat([].map.call(parentEl.querySelectorAll('span.avatar-default'), _=>_.innerText));
+        return persons;
     }
     // / 数据获取与标准化
 
@@ -95,7 +100,7 @@ const handleSerialLinePersonOrder = [
         let itemList = JSON.parse(JSON.stringify(getFilteredListData())).map(_=>{
             let launchDateSuffix = _.launchDateText ? (' - 【' + ((_.statusIcon === '🎉'||_.launchDateTimeStamp<Date.now())?'已于':'预计') + _.launchDateText +'上线】') : undefined;
             _.__outputText = [_.statusIcon, _.pureTitle, launchDateSuffix].join('');
-            _.serialLinePersons.forEach(p=>{
+            _.serialLineMainPersons.concat(_.serialLineSupportPersons).forEach(p=>{
                 if (!uniquePersons.includes(p)) {
                     uniquePersons.push(p)
                 }
@@ -105,10 +110,29 @@ const handleSerialLinePersonOrder = [
         uniquePersons.sort();
         uniquePersons.sort((a,b)=>handleSerialLinePersonOrder.indexOf(a) < handleSerialLinePersonOrder.indexOf(b) ? -1:1);
         uniquePersons.forEach(p=>{
+            const mainTypeItems = itemList.filter(_=>_.serialLineMainPersons.includes(p)).map(_=>_.__outputText);
+            const supportTypeItems = itemList.filter(_=>_.serialLineSupportPersons.includes(p)).map(_=>_.__outputText);
             outputText += '1. **'+ p +'**:';
-            outputText += '\n    1.'+ itemList.filter(_=>_.serialLinePersons.includes(p)).map(_=>_.__outputText).join('\n    1.');
-            outputText += '\n\n';
-        })
+            if (supportTypeItems.length) {
+                outputText += '\n    0. 支持型事务：';
+                outputText += '\n        0. '+ supportTypeItems.join('\n        1. ');
+            }
+            if (mainTypeItems.length) {
+                outputText += '\n    1. '+ itemList.filter(_=>_.serialLineMainPersons.includes(p)).map(_=>_.__outputText).join('\n    1. ');
+            }
+            if (!supportTypeItems.length && !mainTypeItems.length) {
+                outputText += '\n    1. 无';
+            }
+            outputText += '\n';
+        });
+        outputText += '1. **未指派**:';
+        const unassignedItems =itemList.filter(_=>_.serialLineMainPersons.length===0).map(_=>_.__outputText);
+        if (unassignedItems.length) {
+            outputText += '\n    1. '+ unassignedItems.join('\n    1. ');
+        }
+        if (!unassignedItems.length) {
+            outputText += '\n    1. 无';
+        }
         handleAnyCopyBtnClick(e, '按串行瓶颈环节分组+状态+标题+预计发布日期', outputText);
     }
     // // 事件函数定义
@@ -135,9 +159,13 @@ const handleSerialLinePersonOrder = [
             refreshCopyButton(enTitleTh, handleEnTitleThCopyBtnClick);
         }
 
-        const pipelineTitleTh = getTitleEl('🚦 串行瓶颈环节', parentEl);
+        const pipelineTitleTh = getTitleEl('🚦 串行瓶颈-主力开发人员', parentEl);
+        const pipelineTitleTh2 = getTitleEl('🚦 串行瓶颈-支持型开发人员', parentEl);
         if (pipelineTitleTh) {
             refreshCopyButton(pipelineTitleTh, handleSerialLinePersonsCopyBtnClick);
+        }
+        if (pipelineTitleTh2) {
+            refreshCopyButton(pipelineTitleTh2, handleSerialLinePersonsCopyBtnClick);
         }
 
         // / 按钮渲染和事件绑定
