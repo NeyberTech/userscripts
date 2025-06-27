@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      2.3
+// @version      2.4
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
@@ -64,7 +64,7 @@ const handleSerialLinePersonOrder = [
     }
     function getPersonNames(parentEl){
         let persons = [];
-        if (!parent) return [];
+        if (!parentEl) return [];
         persons = persons.concat([].map.call(parentEl.querySelectorAll('img.avatar-avatar'), _=>_.alt).filter(_=>_));
         persons = persons.concat([].map.call(parentEl.querySelectorAll('span.avatar-default'), _=>_.innerText));
         return persons;
