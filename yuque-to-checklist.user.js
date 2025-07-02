@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         语雀文档变任务清单
 // @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      1.7
+// @version      1.8
 // @description  给语雀文档的每一行加一个勾选框，本地浏览器存储
 // @author       Neyber Team
 // @match        https://*.yuque.com/*
@@ -188,23 +188,26 @@ function showToast(message = '操作成功', duration = 2000) {
                 const expectedChecked = checkedLiMapById[unionId];
 
                 let insertTarget, insertTargetContainer;
+
                 if (/ne-h\d/i.test(node.tagName)) {
-                    insertTarget = node.querySelectorAll('ne-heading-content ne-text')[0];
-                    insertTargetContainer = insertTarget?.parentNode;
+                    insertTargetContainer = node.querySelector('ne-heading-ext')
+                }
+                else if (/ne-p/i.test(node.tagName)) {
+                    insertTarget = node;
+                    insertTargetContainer = node.parentNode
                 }
                 else {
-                    insertTarget = node.childNodes[0];
-                    insertTargetContainer = node;
+                    insertTargetContainer = node.previousElementSibling
                 }
 
-                if (insertTarget) {
+                if (insertTarget || insertTargetContainer) {
                     let checkboxContainer = [].find.call(insertTargetContainer.childNodes, (n)=>n.__checklist__listItemCheckboxContainer);
                     let checkbox;
                     if(checkboxContainer) {
                         checkbox = [].find.call(checkboxContainer.childNodes, (n)=>n.__checklist__listItemCheckbox);
                     }
                     if(!checkbox) {
-                        checkboxContainer = document.createElement('Span');
+                        checkboxContainer = document.createElement('span');
                         checkboxContainer.__checklist__listItemCheckboxContainer = true;
                         checkbox = document.createElement('Input');
                         checkbox.type = 'checkbox';
@@ -233,7 +236,12 @@ function showToast(message = '操作成功', duration = 2000) {
                         linkCopyBtn.appendChild(linkCopyBtnIcon);
                         checkboxContainer.appendChild(linkCopyBtn);
 
-                        insertTargetContainer.insertBefore(checkboxContainer, insertTarget);
+                        if (insertTarget) {
+                            insertTargetContainer.insertBefore(checkboxContainer, insertTarget);
+                        }
+                        else if (insertTargetContainer) {
+                            insertTargetContainer.appendChild(checkboxContainer);
+                        }
                     }
                     else if (expectedChecked !== checkbox.checked) {
                         checkbox.checked = expectedChecked;
