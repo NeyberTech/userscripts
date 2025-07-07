@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PingCode快速复制标题文字
-// @namespace    https://raw.githubusercontent.com/NeyberTech/userscripts
-// @version      2.4
+// @namespace    https://raw.githubusrcontent.com/NeyberTech/userscripts
+// @version      2.5
 // @description  PingCode快速复制标题文字
 // @author       Neyber Team
 // @match        https://*.pingcode.com/*
@@ -60,6 +60,11 @@ const handleSerialLinePersonOrder = [
         },
         serialLineSupportPersons(trEl){
             return getPersonNames(trEl.querySelectorAll('[name="chuanhangpingjingzhichifang"]')[0]);
+        },
+        valueLevelIcon(trEl){
+            let text = trEl.querySelectorAll('[name="zhuyaojiazhiqianli"]')[0]?.parentNode.innerText || '';
+            emojiRegExp.lastIndex = 0;
+            return emojiRegExp.test(text) ? RegExp.$1 : '';
         }
     }
     function getPersonNames(parentEl){
@@ -99,7 +104,7 @@ const handleSerialLinePersonOrder = [
         let uniquePersons = []
         let itemList = JSON.parse(JSON.stringify(getFilteredListData())).map(_=>{
             let launchDateSuffix = _.launchDateText ? (' - 【' + ((_.statusIcon === '🎉'||_.launchDateTimeStamp<Date.now())?'已于':'预计') + _.launchDateText +'上线】') : undefined;
-            _.__outputText = [_.statusIcon, _.pureTitle, launchDateSuffix].join('');
+            _.__outputText = [_.valueLevelIcon, _.statusIcon, _.pureTitle, launchDateSuffix].join('');
             _.serialLineMainPersons.concat(_.serialLineSupportPersons).forEach(p=>{
                 if (!uniquePersons.includes(p)) {
                     uniquePersons.push(p)
